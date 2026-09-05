@@ -32,6 +32,13 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# local-only Nyangstagram state
+/data/*.json
+!/data/.gitkeep
+/storage/uploads/images/*
+!/storage/uploads/images/.gitkeep
 
 # vercel
 .vercel

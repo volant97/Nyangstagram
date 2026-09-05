@@ -1,69 +1,82 @@
 import Image from "next/image";
+import { Cat, KeyRound, LockKeyhole, Sparkles } from "lucide-react";
+import { loginAction } from "@/app/actions";
+import { NyangApp } from "@/components/nyang-app";
+import { getCurrentUser } from "@/lib/auth/session";
+import { getDashboard } from "@/lib/services/social-service";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ loginError?: string }>;
+}) {
+  const [user, params] = await Promise.all([getCurrentUser(), searchParams]);
+  if (!user) return <LoginScreen hasError={params.loginError === "1"} />;
+  return <NyangApp data={await getDashboard(user.id)} />;
+}
+
+function LoginScreen({ hasError }: { hasError: boolean }) {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
+    <main className="login-page">
+      <section className="login-visual" aria-label="애옹즈 소개">
         <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
+          src="/aeongz-cabin.png"
+          alt="아늑한 오두막에 함께 모인 네 마리 고양이"
+          fill
           priority
+          sizes="(max-width: 840px) 100vw, 58vw"
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
+        <div className="login-overlay" />
+        <div className="login-story">
+          <div className="eyebrow">
+            <Sparkles size={16} /> 우리끼리만, 조용히
+          </div>
+          <h1>
+            게임이 달라져도
+            <br />
+            우리는 여기서 만나.
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p>애옹즈의 오늘과 내일을 차곡차곡 모으는 작은 아지트.</p>
+        </div>
+      </section>
+      <section className="login-panel">
+        <div className="login-card">
+          <div className="brand-mark">
+            <Cat size={27} strokeWidth={2.4} />
+          </div>
+          <div>
+            <p className="wordmark">nyangstagram</p>
+            <p className="login-kicker">애옹즈 전용 비밀 입구</p>
+          </div>
+          <form action={loginAction} className="login-form">
+            <label htmlFor="code">나의 개인 코드</label>
+            <div className="code-field">
+              <KeyRound size={19} />
+              <input
+                id="code"
+                name="code"
+                autoComplete="off"
+                autoCapitalize="characters"
+                placeholder="코드를 입력해줘"
+                required
+              />
+            </div>
+            {hasError ? (
+              <p className="form-error">
+                앗, 코드가 맞지 않아요. 다시 확인해줘!
+              </p>
+            ) : null}
+            <button className="primary-button" type="submit">
+              아지트 들어가기 <span>→</span>
+            </button>
+          </form>
+          <p className="privacy-note">
+            <LockKeyhole size={14} /> 이 공간은 애옹즈 네 명에게만 열려 있어요.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </section>
+    </main>
   );
 }
